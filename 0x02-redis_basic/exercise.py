@@ -50,7 +50,7 @@ def replay(func: Callable):
     final = f"{key} was called {count_calls} {times_str}"
     print(final)
     for k, v in zip(input, output):
-        final = "{}(*{}) -> {}".format(
+        final = "{}(*{},) -> {}".format(
             key,
             k.decode('utf-8'),
             v.decode('utf-8')
