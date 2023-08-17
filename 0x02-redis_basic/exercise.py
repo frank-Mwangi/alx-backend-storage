@@ -24,7 +24,7 @@ def count_calls(method: Callable) -> Callable:
 
 def replay(func: Callable):
     """the replay method"""
-    r = redis.redis()
+    r = redis.Redis()
     key = func.__qualname__
     input = r.lrange(f"{key}:inputs", 0, -1)
     output = r.lrange(f"{key}:outputs", 0, -1)
