@@ -22,27 +22,6 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
-def replay(func: Callable):
-    """the replay method"""
-    r = redis.Redis()
-    key = func.__qualname__
-    input = r.lrange(f"{key}:inputs", 0, -1)
-    output = r.lrange(f"{key}:outputs", 0, -1)
-    count_calls = len(input)
-    times_str = 'times'
-    if count_calls == 1:
-        times_str = 'time'
-    result = f"{key} was called {count_calls} {times_str}"
-    print(result)
-    for k, v in zip(input, output):
-        result = "{}(*{}) -> {}".format(
-            key,
-            k.decode('utf-8'),
-            v.decode('utf-8')
-        )
-        print(result)
-
-
 def call_history(method: Callable) -> Callable:
     """The call history method"""
     @wraps(method)
@@ -56,6 +35,27 @@ def call_history(method: Callable) -> Callable:
         self._redis.rpush(output, str(final))
         return final
     return wrapper
+
+
+def replay(func: Callable):
+    """the replay method"""
+    r = redis.Redis()
+    key = func.__qualname__
+    input = r.lrange(f"{key}:inputs", 0, -1)
+    output = r.lrange(f"{key}:outputs", 0, -1)
+    count_calls = len(input)
+    times_str = 'times'
+    if count_calls == 1:
+        times_str = 'time'
+    final = f"{key} was called {count_calls} {times_str}"
+    print(final)
+    for k, v in zip(input, output):
+        final = "{}(*{}) -> {}".format(
+            key,
+            k.decode('utf-8'),
+            v.decode('utf-8')
+        )
+        print(final)
 
 
 class Cache:
