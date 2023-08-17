@@ -4,6 +4,7 @@ The Cache class
 """
 
 from curses import keyname
+from unittest import result
 import redis
 import uuid
 from typing import Union, Callable
@@ -19,6 +20,27 @@ def count_calls(method: Callable) -> Callable:
         return method(self, *args, **kwargs)
 
     return wrapper
+
+
+def replay(func: Callable):
+    """the replay method"""
+    r = redis.redis()
+    key = func.__qualname__
+    input = r.lrange(f"{key}:inputs", 0, -1)
+    output = r.lrange(f"{key}:outputs", 0, -1)
+    count_calls = len(input)
+    times_str = 'times'
+    if count_calls == 1:
+        times_str = 'time'
+    result = f"{key} was called {count_calls} {times_str}"
+    print(result)
+    for k, v in zip(input, output):
+        result = "{}(*{}) -> {}".format(
+            key,
+            k.decode('utf-8'),
+            v.decode('utf-8')
+        )
+        print(result)
 
 
 def call_history(method: Callable) -> Callable:
